@@ -1,0 +1,24 @@
+# Example: index every repo in a local folder, mounted read-only.
+# Change the source path on the first volume line, then:
+#   docker compose up -d
+services:
+  opengrok:
+    build: .
+    image: opengrok-native:1.14.20
+    container_name: opengrok
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      NOMIRROR: "1"              # don't pull the repos
+      SYNC_PERIOD_MINUTES: "0"   # index once at startup
+      INDEXER_JAVA_OPTS: "-Xmx4g"
+      INDEXER_OPT: >-
+        --depth 4
+        -i d:.git -i d:node_modules -i d:.venv -i d:dist -i d:build
+    volumes:
+      - ~/git:/opengrok/src:ro
+      - opengrok-data:/opengrok/data
+      - opengrok-etc:/opengrok/etc
+volumes:
+  opengrok-data:
+  opengrok-etc:
